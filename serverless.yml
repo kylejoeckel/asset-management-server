@@ -1,0 +1,86 @@
+service: asset-manager-server
+
+provider:
+  name: aws
+  runtime: python3.10
+  region: us-east-1
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - s3:*
+      Resource: "arn:aws:s3:::asset-manager-server-bucket/*"
+
+functions:
+  addAssetToGroup:
+      handler: handlers.handler.add_asset_to_group
+      events:
+        - http:
+            path: add-asset-to-group
+            method: post
+            cors: true
+
+  createAssetGroup:
+    handler: handlers.handler.create_asset_group
+    events:
+      - http:
+          path: create-asset-group
+          method: post
+          cors: true
+
+  getAssetGroupUrl:
+    handler: handlers.handler.get_asset_group_url
+    events:
+      - http:
+          path: get-asset-group-url
+          method: get
+          cors: true
+
+plugins:
+  - serverless-offline
+
+resources:
+  Resources:
+    AssetsBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: asset-manager-server-bucket # Ensure this is unique
+        CorsConfiguration:
+          CorsRules:
+            - AllowedMethods: ["GET"]
+              AllowedOrigins: ["*"]
+              AllowedHeaders: ["*"]
+
+    Distribution:
+      Type: AWS::CloudFront::Distribution
+      Properties:
+        DistributionConfig:
+          Enabled: true
+          Comment: Digital Assets Distribution
+          DefaultRootObject: index.html
+          Origins:
+            - Id: AssetsOrigin
+              DomainName: !GetAtt AssetsBucket.DomainName
+              S3OriginConfig:
+                OriginAccessIdentity: ""
+          DefaultCacheBehavior:
+            TargetOriginId: AssetsOrigin
+            ViewerProtocolPolicy: redirect-to-https
+            AllowedMethods:
+              - GET
+              - HEAD
+            CachedMethods:
+              - GET
+              - HEAD
+            ForwardedValues:
+              QueryString: false
+              Cookies:
+                Forward: none
+            Compress: true
+
+outputs:
+  AssetsBucketName:
+    Description: "Bucket for digital assets"
+    Value: !Ref AssetsBucket
+  DistributionDomainName:
+    Description: "CloudFront distribution domain name"
+    Value: !GetAtt Distribution.DomainName
