@@ -8,11 +8,13 @@ provider:
     - Effect: Allow
       Action:
         - s3:*
-      Resource: "arn:aws:s3:::asset-manager-server-bucket/*"
+      Resource: 
+        - "arn:aws:s3:::asset-manager-server-bucket/*"
+        - "arn:aws:s3:::asset-manager-server-bucket" # Add this line
 
 functions:
   addAssetToGroup:
-      handler: handlers.handler.add_asset_to_group
+      handler: handlers.add_asset_to_group.add_asset_to_group
       events:
         - http:
             path: add-asset-to-group
@@ -20,7 +22,7 @@ functions:
             cors: true
 
   createAssetGroup:
-    handler: handlers.handler.create_asset_group
+    handler: handlers.create_asset_group.create_asset_group
     events:
       - http:
           path: create-asset-group
@@ -28,16 +30,29 @@ functions:
           cors: true
 
   getAssetGroupUrl:
-    handler: handlers.handler.get_asset_group_url
+    handler: handlers.get_asset_group_url.get_asset_group_url
     events:
       - http:
           path: get-asset-group-url
           method: get
           cors: true
-
+  listImageAssets:
+    handler: handlers.list_image_assets.list_image_assets
+    events:
+      - http:
+          path: list-image-assets
+          method: get
+          cors: true
+  listMenuAssets:
+    handler: handlers.list_menu_assets.list_menu_assets
+    events:
+      - http:
+          path: list-menu-assets
+          method: get
+          cors: true
 plugins:
   - serverless-offline
-
+  
 resources:
   Resources:
     AssetsBucket:

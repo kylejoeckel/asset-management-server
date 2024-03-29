@@ -15,6 +15,10 @@ def add_asset_to_group(event, context):
         if not all([group_name, asset_name]):
             return {
                 "statusCode": 400,
+                "headers": {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Credentials": True,
+            },
                 "body": json.dumps({"error": "GroupName and AssetName are required"})
             }
         
@@ -31,6 +35,10 @@ def add_asset_to_group(event, context):
 
         return {
             "statusCode": 200,
+            "headers": {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Credentials": True,
+            },
             "body": json.dumps({
                 "message": "Pre-signed URL generated successfully",
                 "presignedUrl": presigned_url,
@@ -40,5 +48,9 @@ def add_asset_to_group(event, context):
     except ClientError as e:
         return {
             "statusCode": 500,
+            "headers": {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Credentials": True,
+            },
             "body": json.dumps({"error": str(e)})
         }

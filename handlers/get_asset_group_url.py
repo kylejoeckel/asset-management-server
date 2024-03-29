@@ -12,6 +12,10 @@ def get_asset_group_url(event, context):
     if not group_name:
         return {
             "statusCode": 400,
+            "headers": {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Credentials": True,
+            },
             "body": json.dumps({"error": "GroupName query parameter is required"})
         }
 
@@ -20,6 +24,10 @@ def get_asset_group_url(event, context):
 
     return {
         "statusCode": 200,
+        "headers": {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Credentials": True,
+            },
         "body": json.dumps({
             "message": "URL retrieved successfully",
             "url": base_url
